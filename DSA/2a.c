@@ -4,98 +4,61 @@
 
 #define MS 50
 
-char postfix[50];
+char post[MS];
+int st[MS];
+int top = -1;
 
-struct stack
-{
-    int top;
-    int item[MS];
-} s;
-
-void push(int value)
-{
-    if(s.top == MS - 1)
-    {
+void push(int x) {
+    if (top == MS - 1) {
         printf("overflow\n");
+        exit(1);
     }
-    else
-    {
-        s.item[++s.top] = value;
-    }
+    st[++top] = x;
 }
 
-
-
-int pop()
-{
-    if(s.top == -1)
-    {
+int pop() {
+    if (top < 0) {
         printf("\n stack underflow");
-        exit(0);
+        exit(1);
     }
-    return s.item[s.top--];
+    return st[top--];
 }
 
-
-
-int empty()
-{
-    if(s.top == -1)
-        return 1;
-    else
-        return 0;
-}
-
-
-
-int operation(int a, int b, char c)
-{
-    switch(c)
-    {
-        case '^': return pow(a, b);
-        case '*': return a * b;
-        case '%': return a % b;
-        case '/': return a / b;
-        case '+': return a + b;
-        case '-': return a - b;
+int op(int a, int b, char c) {
+    switch (c) {
+        case '^':
+            return (int)pow(a, b);
+        case '*':
+            return a * b;
+        case '%':
+            return a % b;
+        case '/':
+            return a / b;
+        case '+':
+            return a + b;
+        case '-':
+            return a - b;
     }
     return 0;
 }
 
+int main() {
+    int i, a, b;
 
+    printf("Enter the postfix expression\n");
+    fgets(post, sizeof(post), stdin);
 
-int evaluate()
-{
-    int i, a, b, ans, value;
-    char symb;
-    for(i = 0; postfix[i] != '\0'; i++)
-    {
-        symb = postfix[i];
-        if(symb >= '0' && symb <= '9')
-        {
-            push(symb - '0');
-        }
-        else
-        {
+    for (i = 0; post[i] != '\0' && post[i] != '\n'; i++) {
+        char c = post[i];
+        if (c >= '0' && c <= '9') {
+            push(c - '0');
+        } else {
             a = pop();
             b = pop();
-            value = operation(b, a, symb);
-            push(value);
+            push(op(b, a, c));
         }
     }
-    ans = pop();
-    return ans;
-}
 
-
-
-int main()
-{
-    int ans;
-    s.top = -1;
-    printf("Enter the postfix expression\n");
-    fgets(postfix, sizeof(postfix), stdin);
-    ans = evaluate();
-    printf("The resultant ans is %d\n", ans);
+    printf("The resultant ans is %d\n", pop());
     return 0;
 }

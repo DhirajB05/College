@@ -1,130 +1,101 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct BST
-{
+typedef struct BST {
     int data;
-    struct BST *lc, *rc;
+    struct BST *lc;
+    struct BST *rc;
 } node;
 
-node *create(node *root, int x)
-{
-    if(root == NULL)
-    {
-        node *p = malloc(sizeof(node));
-        p->data = x;
-        p->lc = p->rc = NULL;
-        return p;
+node *create(node *r, int x) {
+    if (!r) {
+        r = malloc(sizeof(node));
+        if (!r) {
+            exit(1);
+        }
+        r->data = x;
+        r->lc = NULL;
+        r->rc = NULL;
+    } else if (x < r->data) {
+        r->lc = create(r->lc, x);
+    } else if (x > r->data) {
+        r->rc = create(r->rc, x);
     }
-    if(x < root->data)
-        root->lc = create(root->lc, x);
-    else if(x > root->data)
-        root->rc = create(root->rc, x);
-    return root;
+    return r;
 }
 
-
-
-void search(node *root, int key)
-{
-    if(root == NULL)
-        printf("The key is not found\n");
-    else if(key == root->data)
-        printf("The key is found\n");
-    else if(key < root->data)
-        search(root->lc, key);
-    else
-        search(root->rc, key);
+void search(node *r, int k) {
+    if (!r) {
+        puts("The key is not found");
+    } else if (k == r->data) {
+        puts("The key is found");
+    } else if (k < r->data) {
+        search(r->lc, k);
+    } else {
+        search(r->rc, k);
+    }
 }
 
-
-
-void inorder(node *r)
-{
-    if(r != NULL)
-    {
+void inorder(node *r) {
+    if (r) {
         inorder(r->lc);
         printf("%d\t", r->data);
         inorder(r->rc);
     }
 }
 
-
-
-void preorder(node *r)
-{
-    if(r != NULL)
-    {
+void preorder(node *r) {
+    if (r) {
         printf("%d\t", r->data);
         preorder(r->lc);
         preorder(r->rc);
     }
 }
 
-
-
-void postorder(node *r)
-{
-    if(r != NULL)
-    {
+void postorder(node *r) {
+    if (r) {
         postorder(r->lc);
         postorder(r->rc);
         printf("%d\t", r->data);
     }
 }
 
-
-
-void traversal(node *root)
-{
-    int ch;
-    do
-    {
-        printf("\n1.Inorder 2.Preorder 3.Postorder 4.Exit\nChoice: ");
-        scanf("%d", &ch);
-        if(ch == 1)
-            inorder(root);
-        else if(ch == 2)
-            preorder(root);
-        else if(ch == 3)
-            postorder(root);
-    } while(ch >= 1 && ch <= 3);
-}
-
-
-
-int main()
-{
+int main() {
     node *root = NULL;
-    int n, x, key, ch, i;
-    while(1)
-    {
+    int ch, n, x, k, i, t;
+
+    while (1) {
         printf("\n1.Create 2.Search 3.Traversal 4.Exit\nChoice: ");
         scanf("%d", &ch);
-        switch(ch)
-        {
-            case 1:
-                printf("Enter the number of elements: ");
-                scanf("%d", &n);
-                printf("Enter the elements: ");
-                for(i = 0; i < n; i++)
-                {
-                    scanf("%d", &x);
-                    root = create(root, x);
+
+        if (ch == 1) {
+            printf("Enter the number of elements: ");
+            scanf("%d", &n);
+            printf("Enter the elements: ");
+            for (i = 0; i < n; i++) {
+                scanf("%d", &x);
+                root = create(root, x);
+            }
+        } else if (ch == 2) {
+            printf("Enter the element to be searched: ");
+            scanf("%d", &k);
+            search(root, k);
+        } else if (ch == 3) {
+            do {
+                printf("\n1.Inorder 2.Preorder 3.Postorder 4.Exit\nChoice: ");
+                scanf("%d", &t);
+                if (t == 1) {
+                    inorder(root);
+                } else if (t == 2) {
+                    preorder(root);
+                } else if (t == 3) {
+                    postorder(root);
                 }
-                break;
-            case 2:
-                printf("Enter the element to be searched: ");
-                scanf("%d", &key);
-                search(root, key);
-                break;
-            case 3:
-                traversal(root);
-                break;
-            case 4:
-                return 0;
-            default:
-                printf("Invalid choice\n");
+            } while (t >= 1 && t <= 3);
+        } else if (ch == 4) {
+            return 0;
+        } else {
+            puts("Invalid choice");
         }
     }
 }

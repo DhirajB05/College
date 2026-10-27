@@ -1,47 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int *ht, c = 0, n, m;
+int *ht;
+int m;
+int n;
+int c;
 
 void display() {
     printf("The hash table is:\n");
-    for (int i = 0; i < m; i++)
+    for (int i = 0; i < m; i++) {
         printf("%d -> %d\n", i, ht[i]);
+    }
 }
 
-
-
 void insert(int key) {
-    int j = key % m, flag = 0;
+    int j = key % m;
+    int start = j;
+
     while (ht[j] != -1) {
         j = (j + 1) % m;
-        flag = 1;
+        if (j == start) {
+            puts("The hash table is full");
+            return;
+        }
     }
-    if (flag)
-        printf("Collision detected and solved using linear probing.\n");
+
+    if (j != key % m) {
+        puts("Collision detected and solved using linear probing.");
+    }
+
     ht[j] = key;
     c++;
     display();
 }
 
-
-
 int main() {
     printf("Enter the number of keys: ");
     scanf("%d", &n);
+
     printf("Enter the memory size: ");
     scanf("%d", &m);
+
+    if (m <= 0) {
+        return 1;
+    }
+
     ht = malloc(m * sizeof(int));
-    for (int i = 0; i < m; i++)
+    if (!ht) {
+        return 1;
+    }
+
+    for (int i = 0; i < m; i++) {
         ht[i] = -1;
+    }
+
     for (int i = 0; i < n && c < m; i++) {
         int key;
         printf("\nEnter the key: ");
         scanf("%d", &key);
         insert(key);
     }
-    if (c == m && n > c)
-        printf("The hash table is full\n");
+
+    if (c == m && n > c) {
+        puts("The hash table is full");
+    }
+
     free(ht);
     return 0;
 }

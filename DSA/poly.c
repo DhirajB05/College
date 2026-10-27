@@ -2,161 +2,144 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct poly
-{
-    int cf, px, py, pz, flag;
+typedef struct poly {
+    int cf;
+    int x;
+    int y;
+    int z;
+    int flag;
     struct poly *next;
 } Node;
 
-Node *getnode()
-{
+Node *getnode() {
     Node *p = malloc(sizeof(Node));
-    if(p == NULL)
+    if (!p) {
         exit(1);
+    }
     p->flag = 0;
     p->next = p;
     return p;
 }
 
-
-
-void insert_rear(int c, int x, int y, int z, Node *h)
-{
-    Node *p = getnode(), *q = h;
+void addterm(Node *h, int c, int x, int y, int z) {
+    Node *p = getnode();
+    Node *q = h;
     p->cf = c;
-    p->px = x;
-    p->py = y;
-    p->pz = z;
-    while(q->next != h)
+    p->x = x;
+    p->y = y;
+    p->z = z;
+    while (q->next != h) {
         q = q->next;
+    }
     q->next = p;
     p->next = h;
 }
 
-
-
-void display(Node *h)
-{
+void display(Node *h) {
     Node *p = h->next;
-    if(p == h)
-    {
-        printf("Polynomial is empty\n");
+    if (p == h) {
+        puts("Polynomial is empty");
         return;
     }
-    while(p != h)
-    {
-        printf("%dx^%dy^%dz^%d", p->cf, p->px, p->py, p->pz);
-        if(p->next != h)
+    while (p != h) {
+        printf("%dx^%dy^%dz^%d", p->cf, p->x, p->y, p->z);
+        if (p->next != h) {
             printf(" + ");
+        }
         p = p->next;
     }
     printf("\n");
 }
 
-
-
-Node *read_poly(Node *h)
-{
+void readpoly(Node *h) {
     int c, x, y, z, ch;
     h->next = h;
-    do
-    {
+    do {
         printf("Enter coeff and powers of x, y, z (space-separated): ");
         scanf("%d%d%d%d", &c, &x, &y, &z);
-        insert_rear(c, x, y, z, h);
+        addterm(h, c, x, y, z);
         printf("Continue? (1 for Yes / 0 for No): ");
         scanf("%d", &ch);
-    } while(ch != 0);
-    return h;
+    } while (ch != 0);
 }
 
-
-
-Node *add_poly(Node *h1, Node *h2, Node *h3)
-{
-    Node *p, *q;
+Node *sumPoly(Node *a, Node *b, Node *s) {
+    Node *p;
+    Node *q;
     int found;
-    h3->next = h3;
-    for(p = h1->next; p != h1; p = p->next)
-    {
+    s->next = s;
+
+    for (p = a->next; p != a; p = p->next) {
         found = 0;
-        for(q = h2->next; q != h2; q = q->next)
-        {
-            if(p->px == q->px && p->py == q->py && p->pz == q->pz)
-            {
-                insert_rear(p->cf + q->cf, p->px, p->py, p->pz, h3);
+        for (q = b->next; q != b; q = q->next) {
+            if (p->x == q->x && p->y == q->y && p->z == q->z) {
+                addterm(s, p->cf + q->cf, p->x, p->y, p->z);
                 q->flag = 1;
                 found = 1;
                 break;
             }
         }
-        if(!found)
-            insert_rear(p->cf, p->px, p->py, p->pz, h3);
+        if (!found) {
+            addterm(s, p->cf, p->x, p->y, p->z);
+        }
     }
-    for(q = h2->next; q != h2; q = q->next)
-    {
-        if(!q->flag)
-            insert_rear(q->cf, q->px, q->py, q->pz, h3);
+
+    for (q = b->next; q != b; q = q->next) {
+        if (!q->flag) {
+            addterm(s, q->cf, q->x, q->y, q->z);
+        }
         q->flag = 0;
     }
-    return h3;
+
+    return s;
 }
 
-
-
-void evaluate(Node *h)
-{
+void evaluate(Node *h) {
     int x, y, z;
-    double sum = 0;
-    Node *p = h->next;
+    double ans = 0;
+
     printf("\nEnter x, y, z terms to evaluate: ");
     scanf("%d%d%d", &x, &y, &z);
-    while(p != h)
-    {
-        sum += p->cf * pow(x, p->px) * pow(y, p->py) * pow(z, p->pz);
-        p = p->next;
+
+    for (Node *p = h->next; p != h; p = p->next) {
+        ans += p->cf * pow(x, p->x) * pow(y, p->y) * pow(z, p->z);
     }
-    printf("Polynomial result is: %.2f\n", sum);
+
+    printf("Polynomial result is: %.2f\n", ans);
 }
 
-
-
-int main()
-{
-    Node *h1 = getnode(), *h2 = getnode(), *h3 = getnode();
+int main() {
+    Node *a = getnode();
+    Node *b = getnode();
+    Node *s = getnode();
     int ch;
-    while(1)
-    {
-        printf("\n--- Polynomial Operations ---\n");
-        printf("1. Evaluate polynomial\n2. Add two polynomials\n3. Exit\n");
-        printf("Choice: ");
+
+    while (1) {
+        printf("\n--- Polynomial Operations ---\n1. Evaluate polynomial\n2. Add two polynomials\n3. Exit\nChoice: ");
         scanf("%d", &ch);
-        if(ch == 1)
-        {
+
+        if (ch == 1) {
             printf("\nEnter polynomial:\n");
-            read_poly(h1);
+            readpoly(a);
             printf("The polynomial is: ");
-            display(h1);
-            evaluate(h1);
-        }
-        else if(ch == 2)
-        {
+            display(a);
+            evaluate(a);
+        } else if (ch == 2) {
             printf("\nEnter the first polynomial:\n");
-            read_poly(h1);
+            readpoly(a);
             printf("\nEnter the second polynomial:\n");
-            read_poly(h2);
-            add_poly(h1, h2, h3);
+            readpoly(b);
+            sumPoly(a, b, s);
             printf("\nFirst polynomial: ");
-            display(h1);
+            display(a);
             printf("Second polynomial: ");
-            display(h2);
+            display(b);
             printf("Sum of polynomials: ");
-            display(h3);
+            display(s);
+        } else if (ch == 3) {
+            return 0;
+        } else {
+            puts("Invalid choice.");
         }
-        else if(ch == 3)
-            break;
-        else
-            printf("Invalid choice.\n");
     }
-    return 0;
 }

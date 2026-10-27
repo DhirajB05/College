@@ -3,172 +3,166 @@
 
 #define MAX 5
 
-struct Student
-{
-    char usn[10], name[25], dept[12], phone[11];
+typedef struct Student {
+    char usn[10];
+    char name[25];
+    char dept[12];
+    char phone[11];
     float m1, m2, m3;
-    struct Student *prev, *next;
-};
-typedef struct Student node;
+    struct Student *prev;
+    struct Student *next;
+} node;
 
-int count(node *head)
-{
+int count(node *h) {
     int n = 0;
-    while(head != NULL)
-    {
+    while (h) {
         n++;
-        head = head->next;
+        h = h->next;
     }
     return n;
 }
 
-
-
-node *getnode()
-{
+node *getnode() {
     node *p = malloc(sizeof(node));
-    printf("Enter Student details\n");
-    printf("USN:"); scanf("%s", p->usn);
-    printf("Name:"); scanf("%s", p->name);
-    printf("Department:"); scanf("%s", p->dept);
-    printf("Phone NO:"); scanf("%s", p->phone);
+    if (!p) {
+        exit(1);
+    }
+    printf("Enter Student details\nUSN:");
+    scanf("%9s", p->usn);
+    printf("Name:");
+    scanf("%24s", p->name);
+    printf("Department:");
+    scanf("%11s", p->dept);
+    printf("Phone NO:");
+    scanf("%10s", p->phone);
     printf("Enter the 3 subject Marks:\n");
     scanf("%f%f%f", &p->m1, &p->m2, &p->m3);
-    p->prev = p->next = NULL;
+    p->prev = NULL;
+    p->next = NULL;
     return p;
 }
 
-
-
-node *create(node *head)
-{
-    node *p = getnode(), *q = head;
-    if(head == NULL)
+node *create(node *h) {
+    if (count(h) == MAX) {
+        puts("Insertion is not possible");
+        return h;
+    }
+    node *p = getnode();
+    node *q = h;
+    if (!h) {
         return p;
-    while(q->next != NULL)
+    }
+    while (q->next) {
         q = q->next;
+    }
     q->next = p;
     p->prev = q;
-    return head;
+    return h;
 }
 
-
-
-node *insertfront(node *head)
-{
-    if(count(head) == MAX)
-        printf("Insertion is not possible\n");
-    else
-    {
-        node *p = getnode();
-        p->next = head;
-        if(head != NULL)
-            head->prev = p;
-        head = p;
+node *front(node *h) {
+    if (count(h) == MAX) {
+        puts("Insertion is not possible");
+        return h;
     }
-    return head;
+    node *p = getnode();
+    p->next = h;
+    if (h) {
+        h->prev = p;
+    }
+    return p;
 }
 
-
-
-node *insertrear(node *head)
-{
-    if(count(head) == MAX)
-        printf("Insertion is not possible\n");
-    else
-        head = create(head);
-    return head;
-}
-
-
-
-void display(node *head)
-{
-    node *p = head;
-    if(p == NULL)
-        printf("No data\n");
-    else
-    {
+void display(node *h) {
+    if (!h) {
+        puts("No data");
+    } else {
         printf("USN\tNAME\tDEPARTMENT\tPhoneNO\tMARKS1\tMARKS2\tMARKS3\tTOTAL\tAVERAGE\n");
-        while(p != NULL)
-        {
-            float total = p->m1 + p->m2 + p->m3;
+        for (node *p = h; p != NULL; p = p->next) {
+            float t = p->m1 + p->m2 + p->m3;
             printf("%s\t%s\t%s\t%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",
-                p->usn, p->name, p->dept, p->phone,
-                p->m1, p->m2, p->m3, total, total / 3);
-            p = p->next;
+                p->usn,
+                p->name,
+                p->dept,
+                p->phone,
+                p->m1,
+                p->m2,
+                p->m3,
+                t,
+                t / 3);
         }
     }
-    printf("The number of nodes in list is %d\n", count(head));
+    printf("The number of nodes in list is %d\n", count(h));
 }
 
-
-
-node *deletefront(node *head)
-{
-    if(head == NULL)
-        printf("No data\n");
-    else
-    {
-        node *p = head;
-        head = head->next;
-        if(head != NULL)
-            head->prev = NULL;
-        free(p);
+node *delFront(node *h) {
+    if (!h) {
+        puts("No data");
+        return h;
     }
-    return head;
-}
-
-
-
-node *deleterear(node *head)
-{
-    if(head == NULL)
-        printf("No data\n");
-    else
-    {
-        node *p = head;
-        while(p->next != NULL)
-            p = p->next;
-        if(p->prev == NULL)
-            head = NULL;
-        else
-            p->prev->next = NULL;
-        free(p);
+    node *p = h;
+    h = h->next;
+    if (h) {
+        h->prev = NULL;
     }
-    return head;
+    free(p);
+    return h;
 }
 
+node *delRear(node *h) {
+    if (!h) {
+        puts("No data");
+        return h;
+    }
+    node *p = h;
+    while (p->next) {
+        p = p->next;
+    }
+    if (p->prev) {
+        p->prev->next = NULL;
+    } else {
+        h = NULL;
+    }
+    free(p);
+    return h;
+}
 
+int main() {
+    node *h = NULL;
+    int ch, n, i;
 
-int main()
-{
-    node *head = NULL;
-    int ch, i, n;
-    do
-    {
-        printf("\n*....STUDENT DATA....*\n");
-        printf("1.Create\n2.Display\n3.Insert_Front\n");
-        printf("4.Insert_Rear\n5.Delete_Front\n");
-        printf("6.Delete_Rear\n7.Exit\n");
-        printf("Enter your choice\n");
+    do {
+        printf("\n*....STUDENT DATA....*\n1.Create\n2.Display\n3.Insert_Front\n4.Insert_Rear\n5.Delete_Front\n6.Delete_Rear\n7.Exit\nEnter your choice\n");
         scanf("%d", &ch);
-        switch(ch)
-        {
+        switch (ch) {
             case 1:
                 printf("Enter number of Student\n");
                 scanf("%d", &n);
-                for(i = 0; i < n; i++)
-                    head = create(head);
+                for (i = 0; i < n; i++) {
+                    h = create(h);
+                }
                 break;
-            case 2: display(head); break;
-            case 3: head = insertfront(head); break;
-            case 4: head = insertrear(head); break;
-            case 5: head = deletefront(head); break;
-            case 6: head = deleterear(head); break;
-            case 7: exit(0);
-            default: printf("Invalid choice\n");
+            case 2:
+                display(h);
+                break;
+            case 3:
+                h = front(h);
+                break;
+            case 4:
+                h = create(h);
+                break;
+            case 5:
+                h = delFront(h);
+                break;
+            case 6:
+                h = delRear(h);
+                break;
+            case 7:
+                exit(0);
+            default:
+                puts("Invalid choice");
         }
-    } while(ch >= 1 && ch <= 6);
+    } while (ch >= 1 && ch <= 6);
+
     return 0;
 }

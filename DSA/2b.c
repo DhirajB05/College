@@ -3,118 +3,74 @@
 
 #define MS 50
 
-char infix[50], postfix[50];
+char in[MS];
+char post[MS];
+char st[MS];
+int top = -1;
 
-void convert();
-
-struct stack
-{
-    int top;
-    char item[MS];
-} s;
-
-void push(char value)
-{
-    if(s.top == MS - 1)
-    {
+void push(char c) {
+    if (top == MS - 1) {
         printf("The stack is overflow\n");
-        exit(0);
+        exit(1);
     }
-    else
-    {
-        s.item[++s.top] = value;
-    }
+    st[++top] = c;
 }
 
-
-
-char pop()
-{
-    if(s.top == -1)
-    {
+char pop() {
+    if (top < 0) {
         printf("stack underflow\n");
-        exit(0);
+        exit(1);
     }
-    return s.item[s.top--];
+    return st[top--];
 }
 
-
-
-int empty()
-{
-    if(s.top == -1)
+int prec(char c) {
+    if (c == '^') {
+        return 3;
+    }
+    if (c == '*' || c == '/' || c == '%') {
+        return 2;
+    }
+    if (c == '+' || c == '-') {
         return 1;
-    else
+    }
+    if (c == '(') {
         return 0;
-}
-
-
-
-int precedence(char c)
-{
-    switch(c)
-    {
-        case '^': return 3;
-        case '*':
-        case '/':
-        case '%': return 2;
-        case '+':
-        case '-': return 1;
-        case '(': return 0;
     }
     return -1;
 }
 
+int main() {
+    int i;
+    int k = 0;
+    char c, t;
 
-
-int main()
-{
-    s.top = -1;
     printf("Enter the infix expression :\n");
-    fgets(infix, sizeof(infix), stdin);
-    convert();
-    printf("The postfix expression is:\n");
-    printf("%s\n", postfix);
-    return 0;
-}
+    fgets(in, sizeof(in), stdin);
 
-
-
-void convert()
-{
-    int i, pos = 0;
-    char symb, t;
-    for(i = 0; infix[i] != '\0' && infix[i] != '\n'; i++)
-    {
-        symb = infix[i];
-        switch(symb)
-        {
-            case '(':
-                push(symb);
-                break;
-            case ')':
-                while((t = pop()) != '(')
-                    postfix[pos++] = t;
-                break;
-            case '^':
-            case '*':
-            case '/':
-            case '%':
-            case '+':
-            case '-':
-                while(!empty() &&
-                      precedence(s.item[s.top]) >= precedence(symb))
-                {
-                    postfix[pos++] = pop();
-                }
-                push(symb);
-                break;
-            default:
-                postfix[pos++] = symb;
-                break;
+    for (i = 0; in[i] != '\0' && in[i] != '\n'; i++) {
+        c = in[i];
+        if (c == '(') {
+            push(c);
+        } else if (c == ')') {
+            while (top >= 0 && (t = pop()) != '(') {
+                post[k++] = t;
+            }
+        } else if (prec(c) > 0) {
+            while (top >= 0 && prec(st[top]) >= prec(c)) {
+                post[k++] = pop();
+            }
+            push(c);
+        } else {
+            post[k++] = c;
         }
     }
-    while(!empty())
-        postfix[pos++] = pop();
-    postfix[pos] = '\0';
+
+    while (top >= 0) {
+        post[k++] = pop();
+    }
+    post[k] = '\0';
+
+    printf("The postfix expression is:\n%s\n", post);
+    return 0;
 }
